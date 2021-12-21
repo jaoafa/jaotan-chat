@@ -38,9 +38,6 @@ export async function chaplus(
       agentName: 'jaotan',
       tone,
     },
-    addition: {
-      unknownResponses: ['高スコアの回答がありませんでした。'],
-    },
   })
   if (result.status !== 200) {
     return {
