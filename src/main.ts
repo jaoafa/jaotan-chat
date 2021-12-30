@@ -34,29 +34,37 @@ async function userReply(message: Message) {
   if (checkError(result)) {
     return
   }
-  let response = (result as ChaplusResponse).bestResponse.utterance
+  const response = (result as ChaplusResponse).bestResponse.utterance
   console.log(JSON.stringify((result as ChaplusResponse).responses))
-  if((result as ChaplusResponse).bestResponse.score < 0.5) {
-    console.log("score: " + (result as ChaplusResponse).bestResponse.score + "retry...")
-    const retryResult = await chaplus({
-      username: message.author.username,
-      content: content,
-      tone: tone,
-    })
-    if (checkError(retryResult)) {
-      return
-    }
-    const retryResponse = (retryResult as ChaplusResponse).bestResponse.utterance
-    console.log(JSON.stringify((retryResult as ChaplusResponse).responses))
-    if((result as ChaplusResponse).bestResponse.score > (retryResult as ChaplusResponse).bestResponse.score) {
-      response = retryResponse
-    }
+  if ((result as ChaplusResponse).bestResponse.score >= 0.5) {
+    await message.reply(
+        response.trim() +
+        ' (score:' +
+        Math.floor((result as ChaplusResponse).bestResponse.score * 100) +
+        '%)'
+    )
+    return;
   }
+  console.log("score: " + (result as ChaplusResponse).bestResponse.score + " retry...")
+  const retryResult = await chaplus({
+    username: message.author.username,
+    content: content,
+    tone: tone,
+  })
+  if (checkError(retryResult)) {
+    return
+  }
+  const retryResponse = (retryResult as ChaplusResponse).bestResponse.utterance
+  console.log(JSON.stringify((retryResult as ChaplusResponse).responses))
   await message.reply(
-    response.trim() +
+      response.trim() +
       ' (score:' +
       Math.floor((result as ChaplusResponse).bestResponse.score * 100) +
-      '%)'
+      '%)\n' +
+      retryResponse.trim() +
+      ' (score:' +
+      Math.floor((retryResult as ChaplusResponse).bestResponse.score * 100) +
+      '%)\n'
   )
 }
 
