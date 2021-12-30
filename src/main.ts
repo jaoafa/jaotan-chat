@@ -34,8 +34,22 @@ async function userReply(message: Message) {
   if (checkError(result)) {
     return
   }
-  const response = (result as ChaplusResponse).bestResponse.utterance
+  let response = (result as ChaplusResponse).bestResponse.utterance
   console.log(JSON.stringify((result as ChaplusResponse).responses))
+  if((result as ChaplusResponse).bestResponse.score < 0.5) {
+    const retryResult = await chaplus({
+      username: message.author.username,
+      content: content,
+      tone: tone,
+    })
+    if (checkError(retryResult)) {
+      return
+    }
+    const retryResponse = (retryResult as ChaplusResponse).bestResponse.utterance
+    if((result as ChaplusResponse).bestResponse.score > (retryResult as ChaplusResponse).bestResponse.score) {
+      response = retryResponse
+    }
+  }
   await message.reply(
     response.trim() +
       ' (score:' +
