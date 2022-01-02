@@ -38,7 +38,13 @@ export async function chaplus(
       agentName: 'jaotan',
       tone,
     },
-  })
+  }).catch(() => null)
+  if(result === null){
+    return {
+      status: "Error",
+      message: "Error"
+    }
+  }
   if (result.status !== 200) {
     return {
       status: result.data.status,
