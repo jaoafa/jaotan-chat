@@ -23,7 +23,7 @@ interface ChaplusError {
 }
 
 export async function chaplus(
-  options: ChaplusOptions
+    options: ChaplusOptions
 ): Promise<ChaplusResponse | ChaplusError> {
   const content = options.content
   const username = options.username
@@ -39,7 +39,7 @@ export async function chaplus(
       tone,
     },
   }).catch(() => null)
-  if(result === null){
+  if (result === null) {
     return {
       status: "Error",
       message: "Error"

@@ -1,7 +1,7 @@
 import config from 'config'
-import { Client, Intents, Message } from 'discord.js'
-import { chaplus, ChaplusResponse } from './Chaplus'
-import { userlocal } from './UserLocal'
+import {Client, Intents, Message} from 'discord.js'
+import {chaplus, ChaplusResponse} from './Chaplus'
+import {mebo} from "./Mebo";
 
 const client = new Client({
   intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES],
@@ -14,18 +14,37 @@ export function getClient() {
 client.on('ready', async () => {
   console.log(`ready: ${client.user?.tag}`)
 })
+
 function checkError(arg: any) {
   return (
-    arg !== null && typeof arg === 'object' && typeof arg.status === 'string'
+      arg !== null && typeof arg === 'object' && typeof arg.status === 'string'
   )
 }
 
 async function userReply(message: Message) {
-  const tone =
-    message.cleanContent.match(/tone:\S+/)?.[0]?.split(':')[1] ?? undefined
   const content = message.cleanContent
-    .replace(/@\S+/g, '')
-    .replace(/tone:\S+/, '')
+      .replace(/@\S+/g, '')
+  const result = await mebo({
+    utterance: content.trim(),
+    uid: message.author.id,
+  })
+  if (result == null) {
+    await message.reply(":warning: 応答を取得できませんでした。")
+    return
+  }
+  console.log("Memo result: ", result)
+  await message.reply(result.bestResponse.utterance +
+      ' (score:' +
+      Math.round(result.bestResponse.score * 100) / 100 +
+      '%)');
+}
+
+async function roleReply(message: Message) {
+  const tone =
+      message.cleanContent.match(/tone:\S+/)?.[0]?.split(':')[1] ?? undefined
+  const content = message.cleanContent
+      .replace(/@\S+/g, '')
+      .replace(/tone:\S+/, '')
   const result = await chaplus({
     username: message.author.username,
     content: content,
@@ -68,28 +87,16 @@ async function userReply(message: Message) {
   )
 }
 
-async function roleReply(message: Message) {
-  const content = message.cleanContent.replace(/@\S+/g, '')
-  const result = await userlocal({
-    username: message.author.username,
-    userId: message.author.id,
-    content: content,
-  })
-  const response = result.result
-  console.log(JSON.stringify(result))
-  await message.reply(response.trim())
-}
-
 client.on('messageCreate', async (message: Message) => {
   if (message.author.id === client.user?.id) return
   if (message.mentions.has(client.user!)) {
-    userReply(message)
+    await userReply(message)
   }
   if (message.mentions.roles.has('597405190156714004')) {
-    roleReply(message)
+    await roleReply(message)
   }
 })
 
 client
-  .login(config.get('discordToken'))
-  .then(() => console.log('Login Successful.'))
+    .login(config.get('discordToken'))
+    .then(() => console.log('Login Successful.'))
