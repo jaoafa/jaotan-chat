@@ -32,7 +32,7 @@ async function userReply(message: Message) {
     await message.reply(":warning: 応答を取得できませんでした。")
     return
   }
-  console.log("Memo result: ", result)
+  console.log("Memo result: ", JSON.stringify(result))
   await message.reply(result.bestResponse.utterance +
       ' (score:' +
       Math.round(result.bestResponse.score * 100) / 100 +
