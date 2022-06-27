@@ -23,7 +23,7 @@ interface ChaplusError {
 }
 
 export async function chaplus(
-    options: ChaplusOptions
+  options: ChaplusOptions
 ): Promise<ChaplusResponse | ChaplusError> {
   const content = options.content
   const username = options.username
@@ -31,18 +31,20 @@ export async function chaplus(
 
   const apiKey = config.get('chaplusApiKey')
   const url = `https://www.chaplus.jp/v1/chat?apikey=${apiKey}`
-  const result = await axios.post(url, {
-    utterance: content,
-    username: username,
-    agentState: {
-      agentName: 'jaotan',
-      tone,
-    },
-  }).catch(() => null)
+  const result = await axios
+    .post(url, {
+      utterance: content,
+      username: username,
+      agentState: {
+        agentName: 'jaotan',
+        tone,
+      },
+    })
+    .catch(() => null)
   if (result === null) {
     return {
-      status: "Error",
-      message: "Error"
+      status: 'Error',
+      message: 'Error',
     }
   }
   if (result.status !== 200) {
