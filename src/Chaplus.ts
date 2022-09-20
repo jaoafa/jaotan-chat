@@ -34,7 +34,7 @@ export async function chaplus(
   const result = await axios
     .post(url, {
       utterance: content,
-      username: username,
+      username,
       agentState: {
         agentName: 'jaotan',
         tone,

@@ -1,10 +1,10 @@
 import config from 'config'
-import { Client, Intents, Message } from 'discord.js'
+import { Client, Message } from 'discord.js'
 import { chaplus, ChaplusResponse } from './Chaplus'
 import { mebo } from './Mebo'
 
 const client = new Client({
-  intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES],
+  intents: ['Guilds', 'GuildMessages', 'MessageContent'],
 })
 
 export function getClient() {
@@ -48,8 +48,8 @@ async function roleReply(message: Message) {
     .replace(/tone:\S+/, '')
   const result = await chaplus({
     username: message.author.username,
-    content: content,
-    tone: tone,
+    content,
+    tone,
   })
   if (checkError(result)) {
     return
@@ -70,8 +70,8 @@ async function roleReply(message: Message) {
   )
   const retryResult = await chaplus({
     username: message.author.username,
-    content: content,
-    tone: tone,
+    content,
+    tone,
   })
   if (checkError(retryResult)) {
     return
